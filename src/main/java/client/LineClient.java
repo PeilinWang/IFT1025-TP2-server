@@ -6,6 +6,62 @@ public class LineClient {
         System.out.println("*** Bienvenue au portail d'inscription de cours de l'Udem ***");
         LineClient client = new LineClient();
         client.sessionsMessage();
+
+        Scanner scanner = new Scanner(System.in);
+        int etat = 0;
+        String session = null;
+        boolean run = true;
+        while (run) {
+            // Choix session
+            if (etat == 0) {
+                int choix1 = Integer.parseInt(scanner.nextLine());
+                if (choix1 == 1 || choix1 == 2 || choix1 == 3) {
+                    switch (choix1) {
+                        case 1:
+                            session = "Automne";
+                            break;
+                        case 2:
+                            session = "Hiver";
+                            break;
+                        case 3:
+                            session = "Ete";
+                    }
+                    client.choiceSession(choix1);
+                    etat = 1;
+                } else {
+                    throw new IllegalArgumentException("Entrée invalide");
+                }
+            }
+            // Choix inscription ou sélection d'une autre session
+            if (etat == 1) {
+                int choix2 = Integer.parseInt(scanner.nextLine());
+                if (choix2 == 1) {
+                    client.sessionsMessage();
+                    etat = 0;
+
+                } else if (choix2 == 2) {
+                    etat = 2;
+                } else {
+                    throw new IllegalArgumentException("Entrée invalide");
+                }
+            }
+            // Envoi de l'inscription
+            if (etat == 2) {
+
+                System.out.print("\n" + "Veuiller saisir votre prénom: ");
+                String prenom = scanner.nextLine();
+                System.out.print("Veuiller saisir votre nom: ");
+                String nom = scanner.nextLine();
+                System.out.print("Veuiller saisir votre email: ");
+                String email = scanner.nextLine();
+                System.out.print("Veuiller saisir votre matricule: ");
+                String matricule = scanner.nextLine();
+                System.out.print("Veuiller saisir le code du cours: ");
+                String code = scanner.nextLine();
+
+                run = false;
+            }
+        }
     }
 
     public void sessionsMessage() {
