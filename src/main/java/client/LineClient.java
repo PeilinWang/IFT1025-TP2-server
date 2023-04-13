@@ -63,7 +63,11 @@ public class LineClient {
             }
         }
     }
-    
+
+    public boolean verifyMatricule(String matricule) {
+        return matricule.length() == 6 && matricule.matches("[0-9]+");
+    }
+
     public void choiceSession(int choix) {
         try {
             String saison = null; // Variable qui contient la saison
