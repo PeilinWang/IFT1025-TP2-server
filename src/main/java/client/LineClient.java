@@ -72,6 +72,39 @@ public class LineClient {
         return email.contains("@") && email.split("@")[1].contains(".") && email.split("@")[0].length() > 0 && email.split("@")[1].split("\\.")[0].length() > 0 && email.split("@")[1].split("\\.")[1].length() > 0;
     }
 
+    public boolean verifyCodeCourse(String code, String session) {
+        boolean check = false;
+        try {
+            session = "CHARGER " + session;
+            Socket clientSocket = new Socket(SERVER_ADDRESS, SERVER_PORT);
+
+            ObjectOutputStream writer = new ObjectOutputStream(clientSocket.getOutputStream());
+            ObjectInputStream receiver = new ObjectInputStream(clientSocket.getInputStream());
+
+            writer.writeObject(session);
+            writer.flush();
+
+            List<String> courses = new ArrayList<>();
+            courses = (ArrayList) receiver.readObject();
+
+            for (int i = 0; i < courses.size(); i++) {
+                String course = courses.get(i);
+                String[] splitcourse = course.split("\t");
+                if (splitcourse[0].equals(code)) {
+                    check = true;
+                }
+            }
+            writer.close();
+            receiver.close();
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Erreur: Classe Introuvable");
+        }
+        return check;
+    }
+
     public void choiceSession(int choix) {
         try {
             String saison = null; // Variable qui contient la saison
