@@ -1,9 +1,21 @@
+package client;
+
+import java.io.*;
+import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
+import server.models.Course;
+import server.models.RegistrationForm;
+import java.util.Scanner;
+
 public class LineClient {
+
     private static final String SERVER_ADDRESS = "localhost";
     private static final int SERVER_PORT = 1337;
 
     public static void main(String[] args) {
         System.out.println("*** Bienvenue au portail d'inscription de cours de l'Udem ***");
+        // Création du client
         LineClient client = new LineClient();
         client.sessionsMessage();
 
@@ -59,52 +71,33 @@ public class LineClient {
                 System.out.print("Veuiller saisir le code du cours: ");
                 String code = scanner.nextLine();
 
+                if (!client.verifyEmail(email)) {
+                    throw new IllegalArgumentException("L'addrese courriel rentré est invalide");
+                }
+                if (!client.verifyCodeCourse(code, session)) {
+                    throw new IllegalArgumentException("Le code du cours rentré est invalide");
+                }
+                if (!client.verifyMatricule(matricule)) {
+                    throw new IllegalArgumentException("Le matricule rentré est invalide");
+                } 
+                else {
+                    client.inscription(nom, prenom, email, matricule, session, code);
+                }
                 run = false;
             }
         }
     }
 
-    public boolean verifyMatricule(String matricule) {
-        return matricule.length() == 6 && matricule.matches("[0-9]+");
+    // Fonction qui affiche le message d'accueil
+    public void sessionsMessage() {
+
+        System.out.println("Veuillez choisir la session pour laquelle vous voulez consulter la liste de cours");
+        System.out.println("1.Automne" + "\n" + "2.Hiver" + "\n" + "3.Été");
+        System.out.print("> Choix: ");
+
     }
 
-    public boolean verifyEmail(String email) {
-        return email.contains("@") && email.split("@")[1].contains(".") && email.split("@")[0].length() > 0 && email.split("@")[1].split("\\.")[0].length() > 0 && email.split("@")[1].split("\\.")[1].length() > 0;
-    }
-
-    public boolean verifyCodeCourse(String code, String session) {
-        boolean check = false;
-        try {
-            session = "CHARGER " + session;
-            Socket clientSocket = new Socket(SERVER_ADDRESS, SERVER_PORT);
-
-            ObjectOutputStream writer = new ObjectOutputStream(clientSocket.getOutputStream());
-            ObjectInputStream receiver = new ObjectInputStream(clientSocket.getInputStream());
-
-            writer.writeObject(session);
-            writer.flush();
-
-            List<String> courses = new ArrayList<>();
-            courses = (ArrayList) receiver.readObject();
-
-            for (int i = 0; i < courses.size(); i++) {
-                String course = courses.get(i);
-                String[] splitcourse = course.split("\t");
-                if (splitcourse[0].equals(code)) {
-                    check = true;
-                }
-            }
-            writer.close();
-            receiver.close();
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } catch (ClassNotFoundException ex) {
-            System.out.println("Erreur: Classe Introuvable");
-        }
-        return check;
-    }
-
+    // Fonction en charge d'afficher les cours des différentes sessions
     public void choiceSession(int choix) {
         try {
             String saison = null; // Variable qui contient la saison
@@ -138,7 +131,7 @@ public class LineClient {
                     System.out.println("Error in line " + i);
                     continue;
                 }
-                System.out.println("1. " + splitcourse[0] + "\t" + splitcourse[1]);
+                System.out.println( "1. " + splitcourse[0] + "\t" + splitcourse[1]);
             }
             writer.close();
             receiver.close();
@@ -154,10 +147,50 @@ public class LineClient {
             System.out.println("Erreur: Classe Introuvable");
         }
     }
-
-    public void sessionsMessage() {
-        System.out.println("Veuillez choisir la session pour laquelle vous voulez consulter la liste de cours");
-        System.out.println("1.Automne" + "\n" + "2.Hiver" + "\n" + "3.Été");
-        System.out.print("> Choix: ");
+    // function to verify whether the number has 6 digits and are all numbers
+    public boolean verifyMatricule(String matricule) {
+        return matricule.length() == 6 && matricule.matches("[0-9]+");
     }
+
+    // Fonction en charge de vérifier que le email fourni est valide
+    public boolean verifyEmail(String email) {
+        return email.contains("@") && email.split("@")[1].contains(".") && email.split("@")[0].length() > 0 && email.split("@")[1].split("\\.")[0].length() > 0 && email.split("@")[1].split("\\.")[1].length() > 0;
+    }
+
+    // Fonction en charge de vérifier que le cours choisi correspond à la bonne
+    // session
+    public boolean verifyCodeCourse(String code, String session) {
+        boolean check = false;
+        try {
+            session = "CHARGER " + session;
+            Socket clientSocket = new Socket(SERVER_ADDRESS, SERVER_PORT);
+
+            ObjectOutputStream writer = new ObjectOutputStream(clientSocket.getOutputStream());
+            ObjectInputStream receiver = new ObjectInputStream(clientSocket.getInputStream());
+
+            writer.writeObject(session);
+            writer.flush();
+
+            List<String> courses = new ArrayList<>();
+            courses = (ArrayList) receiver.readObject();
+
+            for (int i = 0; i < courses.size(); i++) {
+                String course = courses.get(i);
+                String[] splitcourse = course.split("\t");
+                if (splitcourse[0].equals(code)) {
+                    check = true;
+                }
+            }
+            writer.close();
+            receiver.close();
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Erreur: Classe Introuvable");
+        }
+        return check;
+    }
+
+    
 }
