@@ -63,6 +63,56 @@ public class LineClient {
             }
         }
     }
+    
+    public void choiceSession(int choix) {
+        try {
+            String saison = null; // Variable qui contient la saison
+            String session = null; // Variable qui contient la session
+            if (choix == 1) {
+                saison = "automne";
+                session = "CHARGER Automne";
+            } else if (choix == 2) {
+                saison = "hiver";
+                session = "CHARGER Hiver";
+            } else if (choix == 3) {
+                saison = "été";
+                session = "CHARGER Ete";
+            }
+
+            Socket clientSocket = new Socket(SERVER_ADDRESS, SERVER_PORT);
+
+            ObjectOutputStream writer = new ObjectOutputStream(clientSocket.getOutputStream());
+            ObjectInputStream receiver = new ObjectInputStream(clientSocket.getInputStream());
+
+            writer.writeObject(session);
+            writer.flush();
+            System.out.println("Les cours offerts pendant la session d'" + saison + " sont:");
+            List<String> courses = new ArrayList<>();
+            courses = (ArrayList) receiver.readObject();
+
+            for (int i = 0; i < courses.size(); i++) {
+                String course = courses.get(i);
+                String[] splitcourse = course.split("\t");
+                if (splitcourse.length != 3) {
+                    System.out.println("Error in line " + i);
+                    continue;
+                }
+                System.out.println("1. " + splitcourse[0] + "\t" + splitcourse[1]);
+            }
+            writer.close();
+            receiver.close();
+
+            System.out.println("> Choix: ");
+            System.out.println("1. Consulter les cours offerts pour une autre session");
+            System.out.println("2. Inscription à un cours");
+            System.out.print("> Choix: ");
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Erreur: Classe Introuvable");
+        }
+    }
 
     public void sessionsMessage() {
         System.out.println("Veuillez choisir la session pour laquelle vous voulez consulter la liste de cours");
