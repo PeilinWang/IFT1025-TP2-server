@@ -68,6 +68,10 @@ public class LineClient {
         return matricule.length() == 6 && matricule.matches("[0-9]+");
     }
 
+    public boolean verifyEmail(String email) {
+        return email.contains("@") && email.split("@")[1].contains(".") && email.split("@")[0].length() > 0 && email.split("@")[1].split("\\.")[0].length() > 0 && email.split("@")[1].split("\\.")[1].length() > 0;
+    }
+
     public void choiceSession(int choix) {
         try {
             String saison = null; // Variable qui contient la saison
