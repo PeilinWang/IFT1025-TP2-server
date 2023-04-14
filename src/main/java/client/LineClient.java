@@ -192,5 +192,32 @@ public class LineClient {
         return check;
     }
 
-    
+    // Fonction en charge d'effectuer l'inscription
+    public void inscription(String nom, String prenom, String email, String matricule, String session, String code) {
+        try {
+            Socket clientSocket = new Socket(SERVER_ADDRESS, SERVER_PORT);
+            Course coursChoisi = new Course(nom, code, session);
+
+            RegistrationForm fileInscription = new RegistrationForm(prenom, nom, email, matricule, coursChoisi);
+            ObjectOutputStream input = new ObjectOutputStream(clientSocket.getOutputStream());
+            ObjectInputStream output = new ObjectInputStream(clientSocket.getInputStream());
+
+            input.writeObject("INSCRIRE");
+            input.flush();
+            input.writeObject(fileInscription);
+            input.flush();
+
+            String success = output.readObject().toString();
+
+            System.out.println("\n" + success);
+
+            input.close();
+            output.close();
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Erreur: Classe Introuvable");
+        }
+    }
 }
