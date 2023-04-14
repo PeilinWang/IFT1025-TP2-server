@@ -131,7 +131,7 @@ public class LineClient {
                     System.out.println("Error in line " + i);
                     continue;
                 }
-                System.out.println( "1. " + splitcourse[0] + "\t" + splitcourse[1]);
+                System.out.println( (i+1) + ". " + splitcourse[0] + "\t" + splitcourse[1]);
             }
             writer.close();
             receiver.close();
