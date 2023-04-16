@@ -83,6 +83,7 @@ public class LineClient {
                 else {
                     client.inscription(nom, prenom, email, matricule, session, code);
                 }
+                scanner.close();
                 run = false;
             }
         }
@@ -121,18 +122,17 @@ public class LineClient {
             writer.writeObject(session);
             writer.flush();
             System.out.println("Les cours offerts pendant la session d'" + saison + " sont:");
-            List<String> courses = new ArrayList<>();
-            courses = (ArrayList) receiver.readObject();
+            ArrayList<Course> courses = new ArrayList<>();
+            courses = (ArrayList<Course>) receiver.readObject();
 
-            for (int i = 0; i < courses.size(); i++) {
-                String course = courses.get(i);
-                String[] splitcourse = course.split("\t");
-                if (splitcourse.length != 3) {
-                    System.out.println("Error in line " + i);
-                    continue;
-                }
-                System.out.println( (i+1) + ". " + splitcourse[0] + "\t" + splitcourse[1]);
+            // courses is a arrayList of Course objects with the form of course Name, course Code and session. Print list of courses in a ordered list tabular format
+
+            for(int i = 0; i<courses.size(); i++){
+                Course course = courses.get(i);
+                System.out.println((i+1) + ". " + course.getCode() + "\t" + course.getName()  + "\t" + course.getSession());
             }
+
+            
             writer.close();
             receiver.close();
 
@@ -140,6 +140,8 @@ public class LineClient {
             System.out.println("1. Consulter les cours offerts pour une autre session");
             System.out.println("2. Inscription à un cours");
             System.out.print("> Choix: ");
+            
+            clientSocket.close();
 
         } catch (IOException ex) {
             ex.printStackTrace();
