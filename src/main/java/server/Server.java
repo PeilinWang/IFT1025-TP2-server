@@ -9,6 +9,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
 import server.models.RegistrationForm;
+import server.models.Course;
 
 public class Server {
     /**
@@ -150,22 +151,23 @@ public class Server {
      */
     public void handleLoadCourses(String arg) {
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/server/data/cours.txt"))) {
-            List<String> lines = new ArrayList<>();
+        	ArrayList<Course> courses = new ArrayList();
             String line;
-            while ((line = br.readLine()) != null) {
-                lines.add(line);
-            }
+            while((line = br.readLine()) != null) {
+                String[] parts = line.split("\t");
+                if (parts.length != 3 && !(parts[2].equals(arg))) {
+                    continue;
+                }
+                else {
+                    Course couse = new Course(parts[1], parts[0], parts[2]);
+                    courses.add(couse);
 
-            List<String> filteredLines = new ArrayList<>();
-            for (String l : lines) {
-                String[] parts = l.split("\t");
-                if (parts.length >= 3 && parts[2].equals(arg)) {
-                    filteredLines.add(l);
+            
                 }
             }
-            System.out.println("Sending courses for session " + arg + " to client");
+            
             br.close();
-            objectOutputStream.writeObject(filteredLines);
+            objectOutputStream.writeObject(courses);
             objectOutputStream.flush();
         } 
         catch (FileNotFoundException e) {
